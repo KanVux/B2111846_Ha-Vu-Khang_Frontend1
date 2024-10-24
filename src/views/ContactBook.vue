@@ -13,7 +13,7 @@
             <p v-else>Không có liên hệ nào.</p>
             <div class="mt-3 row justify-content-around align-items-center">
                 <button class="btn btn-sm btn-primary" @click="refreshList()">
-                    <i class="fas fa-redo"></i>Làm mới
+                    <i class="fa-solid fa-rotate-right"></i> Làm mới
                 </button>
                 <button class="btn btn-sm btn-success" @click="goToAddContact">
                     <i class="fas fa-plus"></i> Thêm mới
@@ -35,12 +35,14 @@
                     params: { id: activeContact._id },
                 }">
                     <span class="mt-2 badge badge-warning">
-                        <i class="fas fa-edit"></i> Hiệu chỉnh</span>
+                        <i class="fas fa-edit"></i> Hiệu chỉnh
+                    </span>
                 </router-link>
             </div>
         </div>
     </div>
 </template>
+
 <script>
 import ContactCard from "@/components/ContactCard.vue";
 import InputSearch from "@/components/InputSearch.vue";
@@ -88,36 +90,36 @@ export default {
     },
     methods: {
         async retrieveContacts() {
+            try {
+                this.contacts = await ContactService.getAll();
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        refreshList() {
+            this.retrieveContacts();
+            this.activeIndex = -1;
+        },
+        async removeAllContacts() {
+            if (confirm("Bạn muốn xóa tất cả Liên hệ?")) {
                 try {
-                    this.contacts = await ContactService.getAll();
+                    await ContactService.deleteAll();
+                    this.refreshList();
                 } catch (error) {
                     console.log(error);
                 }
-            },
-            refreshList() {
-                this.retrieveContacts();
-                this.activeIndex = -1;
-            },
-        async removeAllContacts() {
-                if (confirm("Bạn muốn xóa tất cả Liên hệ?")) {
-                    try {
-                        await ContactService.deleteAll();
-                        this.refreshList();
-                    } catch (error) {
-                        console.log(error);
-                    }
-                }
-            },
-
-    },
-    goToAddContact() {
-        this.$router.push({ name: "contact.add" });
+            }
+        },
+        goToAddContact() {
+            this.$router.push({ name: "contact.add" });  // Chuyển hướng tới trang thêm liên hệ
+        },
     },
     mounted() {
         this.refreshList();
     },
-}
+};
 </script>
+
 <style scoped>
 .page {
     text-align: left;
